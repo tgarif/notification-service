@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 22.14.0
+        PNPM_VERSION: 10.4.0
+        NESTJS_VERSION: 11.0.2
+    image: notification-service
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app

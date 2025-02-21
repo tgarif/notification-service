@@ -6,7 +6,4 @@ export const MonthlyPayslipTemplates = {
     content:
       'Hello {{firstName}}, your payslip for {{month}} is now available. Check your email for details.',
   },
-  [NotificationChannel.UI]: {
-    content: 'Your payslip for {{month}} is now available.',
-  },
 };

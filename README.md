@@ -1,99 +1,230 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Notification Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project is a **NestJS-based Notification Service** that enables sending notifications through multiple **channels** (Email, UI) based on the predefined **notification types**. It utilizes **MongoDB** with **Mongoose** for persistence and follows **SOLID** principles with a **Strategy** and **Factory** pattern for extensibility.
 
-## Description
+## Architecture
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Key Components
 
-## Project setup
+- **Notification Controller:** Exposes API endpoints for sending and retrieving notifications.
+- **Notification Service:** Handles the main business logic, including checking user subscriptions and sending notifications.
+- **Notification Repository:** Manages interaction with MongoDB
+- **Notification Channel Strategy:** Implements different notification channels such as email and UI.
+- **Notification Template Service:** Generates formatted notification messages based on templates.
 
-```bash
-$ pnpm install
+### Design Patterns Used
+
+- **Factory Pattern:** Used for selecting the correct notification channel.
+- **Strategy Pattern:** Each notification channel (e.g., email, UI) is implemented as a separate strategy.
+- **Repository Pattern:** Handles data persistence with MongoDB
+
+### Class Diagram
+
+```mermaid
+classDiagram
+    class NotificationController {
+        +sendNotification(dto: SendNotificationDto) : NotificationResponseDto[]
+        +getUserNotification(params: GetUserNotificationDto) : NotificationResponseDto[]
+    }
+
+    class NotificationService {
+        +sendNotification(companyId: string, userId: string, type: NotificationType) : NotificationDocument[]
+        +getUserNotifications(userId: string, channel: NotificationChannel) : NotificationDocument[]
+    }
+
+    class NotificationRepository {
+        +create(notification: NotificationDocument) : NotificationDocument
+        +findByUserIdAndChannel(userId: string, channel: NotificationChannel) : NotificationDocument[]
+    }
+
+    class NotificationChannelStrategy {
+        <<interface>>
+        +sendNotification(userId: string, message: NotificationMessage) : Promise<SentNotificationData>
+    }
+
+    class EmailStrategy {
+        +sendNotification(userId: string, message: NotificationMessage) : Promise<SentNotificationData>
+    }
+
+    class UIStrategy {
+        +sendNotification(userId: string, message: NotificationMessage) : Promise<SentNotificationData>
+    }
+
+    class NotificationChannelFactory {
+        +getStrategy(channel: NotificationChannel) : NotificationChannelStrategy
+    }
+
+    class NotificationTemplateService {
+        +getTemplate(type: NotificationType, channel: NotificationChannel, data: TemplateData) : NotificationMessage
+    }
+
+    class MockUserService {
+        +getUserData(userId: string) : Promise<User>
+    }
+
+    class MockCompanyService {
+        +getCompanyData(companyId: string) : Promise<Company>
+    }
+
+    NotificationController --> NotificationService
+    NotificationService --> NotificationRepository
+    NotificationService --> NotificationChannelFactory
+    NotificationService --> NotificationTemplateService
+    NotificationService --> MockUserService
+    NotificationService --> MockCompanyService
+    NotificationChannelFactory --> NotificationChannelStrategy
+    NotificationChannelStrategy <|-- EmailStrategy
+    NotificationChannelStrategy <|-- UIStrategy
 ```
 
-## Compile and run the project
+## Installation and Setup
 
-```bash
-# development
-$ pnpm run start
+### Prerequisites
 
-# watch mode
-$ pnpm run start:dev
+- **Docker** and **Docker Compose** installed
+- **Node.js v22+** and **npm or pnpm v10+** installed
 
-# production mode
-$ pnpm run start:prod
+### Running the Project
+
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/tgarif/notification-service.git
+   cd notification-service
+   ```
+2. **Running the docker shell:**
+   ```sh
+   pnpm shell
+   ```
+   This will launch docker shell along with MongoDB. You will need to use the shell for development.
+3. **Install dependencies:**
+   ```sh
+   pnpm install
+   ```
+4. **Start the application:**
+   ```sh
+   pnpm start
+   ```
+5. **Start the application in watch mode (Optional):**
+   ```sh
+   pnpm start:dev
+   ```
+
+### Running Tests
+
+#### Unit Tests
+
+Run all unit tests with:
+
+```sh
+pnpm test
 ```
 
-## Run tests
+## API Endpoints
 
-```bash
-# unit tests
-$ pnpm run test
+### Send Notification
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+```http
+POST /v1/notification/send
 ```
 
-## Deployment
+**Request Body:**
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g mau
-$ mau deploy
+```json
+{
+  "companyId": "92d74381-831d-4555-8854-455ccc33ad28",
+  "userId": "61f567eb-c8eb-4e4f-bee3-5dad67be4ef0",
+  "type": "leave-balance-reminder"
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Response Example:**
 
-## Resources
+```json
+{
+  "data": [
+    {
+      "notificationId": "67b9cc0c2fd2eeda8ff9ab6a",
+      "userId": "61f567eb-c8eb-4e4f-bee3-5dad67be4ef0",
+      "companyId": "92d74381-831d-4555-8854-455ccc33ad28",
+      "type": "happy-birthday",
+      "channel": "email",
+      "content": "Ward - Jast is wishing you a happy birthday!",
+      "subject": "Happy Birthday Felicita!",
+      "formattedMessage": "📧 Email sent to 61f567eb-c8eb-4e4f-bee3-5dad67be4ef0 | Subject: \"Happy Birthday Felicita!\" | Content: \"Ward - Jast is wishing you a happy birthday!\"",
+      "createdAt": "2025-02-22T13:07:24.254Z",
+      "updatedAt": "2025-02-22T13:07:24.254Z"
+    },
+    {
+      "notificationId": "67b9cc0c2fd2eeda8ff9ab6c",
+      "userId": "61f567eb-c8eb-4e4f-bee3-5dad67be4ef0",
+      "companyId": "92d74381-831d-4555-8854-455ccc33ad28",
+      "type": "happy-birthday",
+      "channel": "ui",
+      "content": "Happy Birthday Felicita",
+      "formattedMessage": "🖥️ UI notification for 61f567eb-c8eb-4e4f-bee3-5dad67be4ef0: \"Happy Birthday Felicita\"",
+      "createdAt": "2025-02-22T13:07:24.258Z",
+      "updatedAt": "2025-02-22T13:07:24.258Z"
+    }
+  ],
+  "meta": {
+    "requestID": "7e79639d-bed5-47bb-ba39-15b51898a1d3",
+    "timestamp": "2025-02-22T13:07:24.259Z",
+    "resource": "/v1/notification/send"
+  }
+}
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### Get User Notifications
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```http
+GET /v1/notification/:userId/:channel
+```
 
-## Support
+**Response Example:**
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```json
+{
+  "data": [
+    {
+      "notificationId": "67b9cc0c2fd2eeda8ff9ab6c",
+      "userId": "61f567eb-c8eb-4e4f-bee3-5dad67be4ef0",
+      "companyId": "92d74381-831d-4555-8854-455ccc33ad28",
+      "type": "happy-birthday",
+      "channel": "ui",
+      "content": "Happy Birthday Felicita",
+      "formattedMessage": "🖥️ UI notification for 61f567eb-c8eb-4e4f-bee3-5dad67be4ef0: \"Happy Birthday Felicita\"",
+      "createdAt": "2025-02-22T13:07:24.258Z",
+      "updatedAt": "2025-02-22T13:07:24.258Z"
+    },
+    {
+      "notificationId": "67b99914c4d142e41808e7fa",
+      "userId": "61f567eb-c8eb-4e4f-bee3-5dad67be4ef0",
+      "companyId": "92d74381-831d-4555-8854-455ccc33ad28",
+      "type": "happy-birthday",
+      "channel": "ui",
+      "content": "Happy Birthday Taurean",
+      "formattedMessage": "🖥️ UI notification for 61f567eb-c8eb-4e4f-bee3-5dad67be4ef0: \"Happy Birthday Taurean\"",
+      "createdAt": "2025-02-22T09:29:56.780Z",
+      "updatedAt": "2025-02-22T09:29:56.780Z"
+    },
+    {
+      "notificationId": "67b9986cc4d142e41808e7f2",
+      "userId": "61f567eb-c8eb-4e4f-bee3-5dad67be4ef0",
+      "companyId": "92d74381-831d-4555-8854-455ccc33ad28",
+      "type": "happy-birthday",
+      "channel": "ui",
+      "content": "Happy Birthday Devan",
+      "formattedMessage": "🖥️ UI notification for 61f567eb-c8eb-4e4f-bee3-5dad67be4ef0: \"Happy Birthday Devan\"",
+      "createdAt": "2025-02-22T09:27:08.507Z",
+      "updatedAt": "2025-02-22T09:27:08.507Z"
+    }
+  ],
+  "meta": {
+    "requestID": "6642bcf0-d0ee-4244-a909-2340361e948e",
+    "timestamp": "2025-02-22T13:09:03.887Z",
+    "resource": "/v1/notification/61f567eb-c8eb-4e4f-bee3-5dad67be4ef0/ui"
+  }
+}
+```

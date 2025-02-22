@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationChannel } from 'src/shared/notification-channels';
 import { faker } from '@faker-js/faker';
-import { User } from 'src/shared/model/user.model';
+import { User } from 'src/shared/types/user.types';
+import { NotificationChannel } from 'src/shared/enums/notification.enums';
 
 @Injectable()
 export class MockUserService {

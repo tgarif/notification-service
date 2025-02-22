@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
-import { NotificationChannel } from 'src/shared/notification-channels';
+import { NotificationChannel, NotificationType } from 'src/shared/enums/notification.enums';
 
 export class GetUserNotificationDto {
   @IsString()
@@ -10,4 +10,16 @@ export class GetUserNotificationDto {
   @IsEnum(NotificationChannel)
   @IsNotEmpty()
   channel: NotificationChannel;
+}
+
+export class GetUserNotificationsResponseDto {
+  notificationId: string;
+  userId: string;
+  companyId: string;
+  type: NotificationType;
+  channel: NotificationChannel;
+  content: string;
+  formattedMessage: string;
+  createdAt: string;
+  updatedAt: string;
 }

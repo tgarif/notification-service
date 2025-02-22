@@ -1,18 +1,17 @@
-import { NotificationDispatcherService } from 'src/notification-dispatcher/notification-dispatcher.service';
 import { NotificationController } from './notification.controller';
-import { NotificationStorageService } from 'src/notification-storage/notification-storage.service';
 import { ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { SendNotificationDto } from './dto/send-notification.dto';
-import { NotificationType } from 'src/shared/notification-types';
 import { GetUserNotificationDto } from './dto/get-user-notifications.dto';
-import { NotificationChannel } from 'src/shared/notification-channels';
+import { NotificationChannel, NotificationType } from 'src/shared/enums/notification.enums';
+import { NotificationService } from './notification.service';
+import { NotificationDocument } from './schemas/notification.schema';
+import mongoose from 'mongoose';
 
 describe('NotificationController', () => {
   let controller: NotificationController;
-  let notificationDispatcherService: NotificationDispatcherService;
-  let notificationStorageService: NotificationStorageService;
+  let notificationService: jest.Mocked<NotificationService>;
   let validationPipe: ValidationPipe;
 
   beforeEach(async () => {
@@ -20,22 +19,17 @@ describe('NotificationController', () => {
       controllers: [NotificationController],
       providers: [
         {
-          provide: NotificationDispatcherService,
-          useValue: { sendNotification: jest.fn() },
-        },
-        {
-          provide: NotificationStorageService,
-          useValue: { getNotifications: jest.fn() },
+          provide: NotificationService,
+          useValue: {
+            sendNotification: jest.fn(),
+            getUserNotifications: jest.fn(),
+          },
         },
       ],
     }).compile();
 
     controller = module.get<NotificationController>(NotificationController);
-    notificationDispatcherService = module.get<NotificationDispatcherService>(
-      NotificationDispatcherService,
-    );
-    notificationStorageService = module.get<NotificationStorageService>(NotificationStorageService);
-
+    notificationService = module.get(NotificationService);
     validationPipe = new ValidationPipe({ transform: true });
   });
 
@@ -50,36 +44,65 @@ describe('NotificationController', () => {
       type: NotificationType.MONTHLY_PAYSLIP,
     };
 
-    (notificationDispatcherService.sendNotification as jest.Mock).mockResolvedValue(['email']);
+    const mockNotification: Partial<NotificationDocument> = {
+      _id: new mongoose.Types.ObjectId(),
+      userId: dto.userId,
+      companyId: dto.companyId,
+      type: dto.type,
+      channel: NotificationChannel.EMAIL,
+      content: 'Content',
+      subject: 'Subject',
+      formattedMessage: 'Formatted message',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    notificationService.sendNotification.mockResolvedValue([
+      mockNotification as NotificationDocument,
+    ]);
 
     const result = await controller.sendNotification(dto);
 
-    expect(notificationDispatcherService.sendNotification).toHaveBeenCalledWith(
-      '550e8400-e29b-41d4-a716-446655440000',
-      '550e8400-e29b-41d4-a716-446655440111',
-      NotificationType.MONTHLY_PAYSLIP,
+    expect(notificationService.sendNotification).toHaveBeenCalledWith(
+      dto.companyId,
+      dto.userId,
+      dto.type,
     );
-    expect(result).toEqual(['email']);
+    expect(result).toHaveLength(1);
+    expect(result[0].notificationId).toBe(mockNotification.id);
   });
 
-  it('should return UI notifications from storage service', () => {
-    (notificationStorageService.getNotifications as jest.Mock).mockReturnValue([
-      'UI Notification 1',
-      'UI Notification 2',
-    ]);
-
+  it('should return UI notifications from notification service', async () => {
     const params: GetUserNotificationDto = {
       userId: '550e8400-e29b-41d4-a716-446655440000',
       channel: NotificationChannel.UI,
     };
 
-    const result = controller.getUserNotification(params);
+    const mockNotification: Partial<NotificationDocument> = {
+      _id: new mongoose.Types.ObjectId(),
+      userId: params.userId,
+      companyId: '550e8400-e29b-41d4-a716-446655440999',
+      type: NotificationType.HAPPY_BIRTHDAY,
+      channel: NotificationChannel.UI,
+      content: 'Content',
+      subject: 'Subject',
+      formattedMessage: 'Formatted message',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-    expect(notificationStorageService.getNotifications).toHaveBeenCalledWith(
-      '550e8400-e29b-41d4-a716-446655440000',
-      NotificationChannel.UI,
+    notificationService.getUserNotifications.mockResolvedValue([
+      mockNotification as NotificationDocument,
+    ]);
+
+    const result = await controller.getUserNotification(params);
+
+    expect(notificationService.getUserNotifications).toHaveBeenCalledWith(
+      params.userId,
+      params.channel,
     );
-    expect(result).toEqual(['UI Notification 1', 'UI Notification 2']);
+    expect(result).toHaveLength(1);
+    expect(result[0].notificationId).toBe(mockNotification.id);
   });
 
   // --- DTO validation tests ---

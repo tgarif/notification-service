@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   app:
@@ -11,7 +11,27 @@ services:
         NESTJS_VERSION: 11.0.2
     image: notification-service
     working_dir: /app
+    depends_on:
+      - db
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./:/app
+    environment:
+      - MONGO_URI=mongodb://admin:secret@db:27017/notification_db?authSource=admin
+
+  db:
+    image: mongo:7.0
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - MONGO_INITDB_DATABASE=notification_db
+
+volumes:
+  mongodb_data:

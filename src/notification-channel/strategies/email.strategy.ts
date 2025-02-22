@@ -1,19 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationChannelStrategy } from '../notification-channel-strategy.interface';
-import { NotificationStorageService } from 'src/notification-storage/notification-storage.service';
-import { NotificationChannel } from 'src/shared/notification-channels';
+import { SentNotificationData, NotificationMessage } from 'src/shared/types/notification.types';
 
 @Injectable()
 export class EmailNotificationStrategy implements NotificationChannelStrategy {
-  constructor(private readonly notificationStorageService: NotificationStorageService) {}
+  async sendNotification(
+    userId: string,
+    { subject, content }: NotificationMessage,
+  ): Promise<SentNotificationData> {
+    if (!subject) {
+      throw new Error('Subject is required for email notification');
+    }
 
-  sendNotification(userId: string, message: { subject?: string; content: string }): string {
-    const notificationMessage = `📧 Email sent to ${userId} | Subject: "${message.subject}" | Content: "${message.content}"`;
-    this.notificationStorageService.storeNotification(
-      userId,
-      NotificationChannel.EMAIL,
-      notificationMessage,
-    );
-    return notificationMessage;
+    const formattedMessage = `📧 Email sent to ${userId} | Subject: "${subject}" | Content: "${content}"`;
+
+    return {
+      formattedMessage,
+      originalSubject: subject,
+      originalContent: content,
+    };
   }
 }

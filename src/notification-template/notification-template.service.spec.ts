@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationTemplateService } from './notification-template.service';
-import { NotificationType } from 'src/shared/notification-types';
-import { NotificationChannel } from 'src/shared/notification-channels';
+import { NotificationChannel, NotificationType } from 'src/shared/enums/notification.enums';
+import { TemplateData } from 'src/shared/types/notification.types';
 
 describe('NotificationTemplateService', () => {
   let service: NotificationTemplateService;
@@ -22,14 +22,24 @@ describe('NotificationTemplateService', () => {
     const notificationType = NotificationType.LEAVE_BALANCE_REMINDER;
     const notificationChannel = NotificationChannel.EMAIL;
 
-    expect(() => service.getTemplate(notificationType, notificationChannel, {})).toThrow(
+    const templateData: TemplateData = {
+      firstName: 'John',
+      companyName: 'Test Corp',
+      leaveDays: 10,
+      month: 'February',
+    };
+
+    expect(() => service.getTemplate(notificationType, notificationChannel, templateData)).toThrow(
       `Template not found for type ${notificationType} and channel ${notificationChannel}`,
     );
   });
 
   it('should return the correct ui template for Leave Balance Reminder', () => {
-    const templateData = {
+    const templateData: TemplateData = {
+      firstName: 'John',
+      companyName: 'Test Corp',
       leaveDays: 8,
+      month: 'February',
     };
 
     const template = service.getTemplate(
@@ -43,8 +53,10 @@ describe('NotificationTemplateService', () => {
   });
 
   it('should return the correct email template for Monthly Payslip', () => {
-    const templateData = {
+    const templateData: TemplateData = {
       firstName: 'John',
+      companyName: 'Test Corp',
+      leaveDays: 8,
       month: 'February',
     };
 
@@ -64,15 +76,24 @@ describe('NotificationTemplateService', () => {
     const notificationType = NotificationType.MONTHLY_PAYSLIP;
     const notificationChannel = NotificationChannel.UI;
 
-    expect(() => service.getTemplate(notificationType, notificationChannel, {})).toThrow(
+    const templateData: TemplateData = {
+      firstName: 'John',
+      companyName: 'Test Corp',
+      leaveDays: 8,
+      month: 'February',
+    };
+
+    expect(() => service.getTemplate(notificationType, notificationChannel, templateData)).toThrow(
       `Template not found for type ${notificationType} and channel ${notificationChannel}`,
     );
   });
 
   it('should return the correct email template for Happy Birthday', () => {
-    const templateData = {
+    const templateData: TemplateData = {
       firstName: 'John',
       companyName: 'Test Corp',
+      leaveDays: 8,
+      month: 'February',
     };
 
     const template = service.getTemplate(
@@ -86,8 +107,11 @@ describe('NotificationTemplateService', () => {
   });
 
   it('should return the correct ui template for Happy Birthday', () => {
-    const templateData = {
+    const templateData: TemplateData = {
       firstName: 'John',
+      companyName: 'Test Corp',
+      leaveDays: 8,
+      month: 'February',
     };
 
     const template = service.getTemplate(
@@ -103,7 +127,15 @@ describe('NotificationTemplateService', () => {
   it('should throw an error for unsupported notification type', () => {
     const notificationType = 'invalid-type' as NotificationType;
     const notificationChannel = NotificationChannel.EMAIL;
-    expect(() => service.getTemplate(notificationType, notificationChannel, {})).toThrow(
+
+    const templateData: TemplateData = {
+      firstName: 'John',
+      companyName: 'Test Corp',
+      leaveDays: 8,
+      month: 'February',
+    };
+
+    expect(() => service.getTemplate(notificationType, notificationChannel, templateData)).toThrow(
       `Template not found for type ${notificationType} and channel ${notificationChannel}`,
     );
   });
@@ -111,7 +143,15 @@ describe('NotificationTemplateService', () => {
   it('should throw an error for unsupported notification channel', () => {
     const notificationType = NotificationType.LEAVE_BALANCE_REMINDER;
     const notificationChannel = 'invalid-type' as NotificationChannel;
-    expect(() => service.getTemplate(notificationType, notificationChannel, {})).toThrow(
+
+    const templateData: TemplateData = {
+      firstName: 'John',
+      companyName: 'Test Corp',
+      leaveDays: 8,
+      month: 'February',
+    };
+
+    expect(() => service.getTemplate(notificationType, notificationChannel, templateData)).toThrow(
       `Template not found for type ${notificationType} and channel ${notificationChannel}`,
     );
   });

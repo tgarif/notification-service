@@ -1,4 +1,4 @@
-import { NotificationChannel } from 'src/shared/notification-channels';
+import { NotificationChannel } from 'src/shared/enums/notification.enums';
 import { NotificationTemplate } from '../notification-template.interface';
 
 export const LeaveBalanceReminderTemplates: NotificationTemplate = {

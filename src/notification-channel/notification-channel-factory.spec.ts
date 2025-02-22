@@ -2,20 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EmailNotificationStrategy } from './strategies/email.strategy';
 import { UINotificationStrategy } from './strategies/ui.strategy';
 import { NotificationChannelFactory } from './notification-channel-factory';
-import { NotificationChannel } from 'src/shared/notification-channels';
-import { NotificationStorageService } from 'src/notification-storage/notification-storage.service';
+import { NotificationChannel } from 'src/shared/enums/notification.enums';
 
 describe('NotificationChannelFactory', () => {
   let factory: NotificationChannelFactory;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        NotificationChannelFactory,
-        EmailNotificationStrategy,
-        UINotificationStrategy,
-        { provide: NotificationStorageService, useValue: { storeNotification: jest.fn() } },
-      ],
+      providers: [NotificationChannelFactory, EmailNotificationStrategy, UINotificationStrategy],
     }).compile();
 
     factory = module.get<NotificationChannelFactory>(NotificationChannelFactory);

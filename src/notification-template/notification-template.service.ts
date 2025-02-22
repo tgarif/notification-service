@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationType } from 'src/shared/notification-types';
-import { NotificationChannel } from 'src/shared/notification-channels';
 import { TEMPLATES } from './templates';
-import { renderTemplate } from 'src/shared/template-helper';
 import { NotificationTemplate } from './notification-template.interface';
+import { NotificationChannel, NotificationType } from 'src/shared/enums/notification.enums';
+import { renderTemplate } from 'src/shared/utils/template-helper.util';
+import { NotificationMessage, TemplateData } from 'src/shared/types/notification.types';
 
 @Injectable()
 export class NotificationTemplateService {
   getTemplate(
     type: NotificationType,
     channel: NotificationChannel,
-    data: Record<string, string | number>,
-  ) {
+    data: TemplateData,
+  ): NotificationMessage {
     const template: NotificationTemplate[NotificationChannel] | undefined =
       TEMPLATES[type]?.[channel];
 

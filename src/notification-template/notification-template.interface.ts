@@ -1,8 +1,6 @@
-import { NotificationChannel } from 'src/shared/notification-channels';
+import { NotificationChannel } from 'src/shared/enums/notification.enums';
+import { NotificationMessage } from 'src/shared/types/notification.types';
 
 export type NotificationTemplate = {
-  [channel in NotificationChannel]?: {
-    subject?: string;
-    content: string;
-  };
+  [channel in NotificationChannel]?: NotificationMessage;
 };

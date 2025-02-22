@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { EmailNotificationStrategy } from './strategies/email.strategy';
 import { UINotificationStrategy } from './strategies/ui.strategy';
-import { NotificationChannel } from 'src/shared/notification-channels';
 import { NotificationChannelStrategy } from './notification-channel-strategy.interface';
+import { NotificationChannel } from 'src/shared/enums/notification.enums';
 
 @Injectable()
 export class NotificationChannelFactory {

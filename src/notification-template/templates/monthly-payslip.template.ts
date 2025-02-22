@@ -1,4 +1,4 @@
-import { NotificationChannel } from '../../shared/notification-channels';
+import { NotificationChannel } from 'src/shared/enums/notification.enums';
 
 export const MonthlyPayslipTemplates = {
   [NotificationChannel.EMAIL]: {

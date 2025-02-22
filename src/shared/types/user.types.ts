@@ -1,4 +1,4 @@
-import { NotificationChannel } from '../notification-channels';
+import { NotificationChannel } from '../enums/notification.enums';
 
 export interface User {
   userId: string;

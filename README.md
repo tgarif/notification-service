@@ -25,8 +25,8 @@ This project is a **NestJS-based Notification Service** that enables sending not
 ```mermaid
 classDiagram
     class NotificationController {
-        +sendNotification(dto: SendNotificationDto) : NotificationResponseDto[]
-        +getUserNotification(params: GetUserNotificationDto) : NotificationResponseDto[]
+        +sendNotification(dto: SendNotificationDto) : SendNotificationResponseDto[]
+        +getUserNotifications(params: GetUserNotificationsDto) : GetUserNotificationsResponseDto[]
     }
 
     class NotificationService {
@@ -35,8 +35,8 @@ classDiagram
     }
 
     class NotificationRepository {
-        +create(notification: NotificationDocument) : NotificationDocument
-        +findByUserIdAndChannel(userId: string, channel: NotificationChannel) : NotificationDocument[]
+        +create(notification: NotificationDocument) : Promise<NotificationDocument>
+        +findByUserIdAndChannel(userId: string, channel: NotificationChannel) : Promise<NotificationDocument[]>
     }
 
     class NotificationChannelStrategy {
@@ -44,11 +44,11 @@ classDiagram
         +sendNotification(userId: string, message: NotificationMessage) : Promise<SentNotificationData>
     }
 
-    class EmailStrategy {
+    class EmailNotificationStrategy {
         +sendNotification(userId: string, message: NotificationMessage) : Promise<SentNotificationData>
     }
 
-    class UIStrategy {
+    class UINotificationStrategy {
         +sendNotification(userId: string, message: NotificationMessage) : Promise<SentNotificationData>
     }
 
@@ -75,8 +75,8 @@ classDiagram
     NotificationService --> MockUserService
     NotificationService --> MockCompanyService
     NotificationChannelFactory --> NotificationChannelStrategy
-    NotificationChannelStrategy <|-- EmailStrategy
-    NotificationChannelStrategy <|-- UIStrategy
+    NotificationChannelStrategy <|-- EmailNotificationStrategy
+    NotificationChannelStrategy <|-- UINotificationStrategy
 ```
 
 ## Installation and Setup

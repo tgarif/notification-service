@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SendNotificationDto, SendNotificationResponseDto } from './dto/send-notification.dto';
 import {
-  GetUserNotificationDto,
+  GetUserNotificationsDto,
   GetUserNotificationsResponseDto,
 } from './dto/get-user-notifications.dto';
 import { NotificationService } from './notification.service';
@@ -40,8 +40,8 @@ export class NotificationController {
   }
 
   @Get(':userId/:channel')
-  async getUserNotification(
-    @Param() params: GetUserNotificationDto,
+  async getUserNotifications(
+    @Param() params: GetUserNotificationsDto,
   ): Promise<GetUserNotificationsResponseDto[]> {
     const { userId, channel } = params;
     const notifications = await this.notificationService.getUserNotifications(userId, channel);

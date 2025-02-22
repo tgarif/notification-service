@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { SendNotificationDto } from './dto/send-notification.dto';
-import { GetUserNotificationDto } from './dto/get-user-notifications.dto';
+import { GetUserNotificationsDto } from './dto/get-user-notifications.dto';
 import { NotificationChannel, NotificationType } from 'src/shared/enums/notification.enums';
 import { NotificationService } from './notification.service';
 import { NotificationDocument } from './schemas/notification.schema';
@@ -73,7 +73,7 @@ describe('NotificationController', () => {
   });
 
   it('should return UI notifications from notification service', async () => {
-    const params: GetUserNotificationDto = {
+    const params: GetUserNotificationsDto = {
       userId: '550e8400-e29b-41d4-a716-446655440000',
       channel: NotificationChannel.UI,
     };
@@ -95,7 +95,7 @@ describe('NotificationController', () => {
       mockNotification as NotificationDocument,
     ]);
 
-    const result = await controller.getUserNotification(params);
+    const result = await controller.getUserNotifications(params);
 
     expect(notificationService.getUserNotifications).toHaveBeenCalledWith(
       params.userId,
@@ -140,22 +140,22 @@ describe('NotificationController', () => {
   });
 
   it('should fail validation when userId in `GetUserNotificationDto` is missing', async () => {
-    const invalidDto = plainToInstance(GetUserNotificationDto, {
+    const invalidDto = plainToInstance(GetUserNotificationsDto, {
       channel: NotificationChannel.UI,
     });
 
     await expect(
-      validationPipe.transform(invalidDto, { type: 'param', metatype: GetUserNotificationDto }),
+      validationPipe.transform(invalidDto, { type: 'param', metatype: GetUserNotificationsDto }),
     ).rejects.toThrow();
   });
 
   it('should fail validation when channel in `GetUserNotificationDto` is missing', async () => {
-    const invalidDto = plainToInstance(GetUserNotificationDto, {
+    const invalidDto = plainToInstance(GetUserNotificationsDto, {
       userId: '550e8400-e29b-41d4-a716-446655440000',
     });
 
     await expect(
-      validationPipe.transform(invalidDto, { type: 'param', metatype: GetUserNotificationDto }),
+      validationPipe.transform(invalidDto, { type: 'param', metatype: GetUserNotificationsDto }),
     ).rejects.toThrow();
   });
 });

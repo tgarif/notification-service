@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { NotificationChannel, NotificationType } from 'src/shared/enums/notification.enums';
 
-export class GetUserNotificationDto {
+export class GetUserNotificationsDto {
   @IsString()
   @IsUUID()
   @IsNotEmpty()

@@ -16,7 +16,7 @@ import { HttpExceptionFilter } from './shared/core/http-exception.filter';
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         APP_PORT: Joi.number().port(),
-        MONGO_URI: Joi.string().uri(),
+        MONGO_URI: Joi.string().uri().required(),
       }),
       isGlobal: true,
     }),
